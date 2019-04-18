@@ -1,0 +1,49 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    font-family: arial;
+  }
+  
+  #options {
+    width: 300px;
+    position: absolute;
+    top: 0px;
+    left: 110px;
+    color: #fff;
+    text-align: left;
+  }
+  
+  h1 {
+    font-size: 26px;
+  }
+  
+  p {
+    font-size: 18px;
+    line-height: 14px;
+  }
+  
+  span {
+    border-bottom: 1px dotted #fff;
+  }
+  
+  #staakLogo {
+    width: 4vw;
+    max-width: 100px;
+    min-width: 80px;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 20;
+    padding: 10px;
+  }
+  
+  #staakLogo svg {
+    width: 100%;
+    display: block;
+  }
+  #staakLogo svg path {
+    fill: #ffffff;
+    -webkit-transition: fill 0.25s ease-in-out;
+    transition: fill 0.25s ease-in-out;
+  }
