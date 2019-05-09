@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link type="text/css" href="./lib/css/index.css" rel="stylesheet" type="text/css"></link>
+</head>
+<body>
+</body>
+<script  type="text/javascript" src="./lib/js/three.js"></script>
+<script  type="text/javascript" src="./lib/js/OrbitControls.js"></script>
+<script  type="text/javascript" src="./lib/js/anime.js"></script>
+<script>
+    class App {
+  
+  constructor() {
+    
+    this.randFrom = [
+      'first',
+      'last',
+      'center'
+    ];
+    
+    this.easing = [
+      'linear',
+      'easeInOutQuad',
+      'easeInOutCubic',
+      'easeInOutQuart',
+      'easeInOutQuint',
+      'easeInOutSine',
+      'easeInOutExpo',
+      'easeInOutCirc',
+      'easeInOutBack',
+      'cubicBezier(.5, .05, .1, .3)',
+      'spring(1, 80, 10, 0)'
+    ];
+  }
+
+  init() {
+
+      this.camera = new THREE.PerspectiveCamera( 25, window.innerWidth / window.innerHeight, 0.1, 1000 );
+      this.camera.position.x = -40;
+      this.camera.position.y = 50;
+      this.camera.position.z = 105;
+      this.camera.lookAt({
+                    x : 0,
+                    y : 0,
+                    z : 0
+                });
+    
+      this.controls = new THREE.OrbitControls(this.camera);
+      this.controls.target = new THREE.Vector3(0,0,0);
+      this.scene = new THREE.Scene();
+    
+      this.resizeListener = e => this.onResize(e);
+	    window.addEventListener( 'resize', this.resizeListener, false );
+    
+      this.createBoxes();
+
+      this.renderer = new THREE.WebGLRenderer({
+        antialias: true
+      });
+
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      this.renderer.setSize( window.innerWidth, window.innerHeight );
+
+      document.body.appendChild( this.renderer.domElement );
+      this.createFloor()
+      this.renderLoop();
+      this.setLight();
+      this.animate();
+
+  }
+  createFloor(){
+      let grid  = new THREE.GridHelper(100, this.STEP, 0x444444);
+      // grid.setColors(0x444444, 0x444444);
+      // grid.position.x = 100
+      // grid.position.z= 100
+      grid.position.y =-20
+      this.scene.add(grid);
+  }
+  createBoxes() {
+    this.geometry = new THREE.BoxBufferGeometry(2, 2, 2);
+    let material = new THREE.MeshLambertMaterial({ color: 0xf2f2f2,  
+      flatShading : THREE.FlatShading})
+    
+    let cube = new THREE.Mesh( this.geometry, material );      
+    
+    let offset = 2.5;
+    this.nRows = 10;
+    this.nCols = 10;
+    this.transArray = [];
+    
+    for(var column = 0; column < this.nCols; column++) {
+      for(var row = 0; row < this.nRows; row++) {
+        let obj = cube.clone();
+        obj.position.x = (row * offset) - ((this.nRows*0.5) + (this.geometry.parameters.width*0.5));
+        obj.position.y = -(this.geometry.parameters.height*0.5);
+        obj.position.z = (column * offset) - ((this.nCols*0.5) + (this.geometry.parameters.width*0.5));
+        this.transArray.push(obj.position);
+        this.scene.add(obj);
+      }
+    }
+  }
+  
+  renderLoop() {
+    let randFrom = this.randFrom[Math.floor(Math.random()*this.randFrom.length)];
+    let easingString = this.easing[Math.floor(Math.random()*this.easing.length)];
+    anime({
+      targets: this.transArray,
+      y: [
+        {value: 10, duration: 800},
+        {value: -10, duration: 3000},
+      ],
+        delay: anime.stagger(200, {grid: [10, 10], from:  this.createRandomEasingString().rf}),
+        easing: this.createRandomEasingString().res,
+      complete: (anim) => this.renderLoop()
+    });
+  }
+
+  createRandomEasingString() {
+     return {
+       res:this.easing[Math.floor(Math.random()*this.easing.length)],
+       rf: this.randFrom[Math.floor(Math.random()*this.randFrom.length)]
+     }
+  }
+  animate() {
+
+      requestAnimationFrame( () => this.animate() );
+      this.update();
+      this.render();
+  }
+
+  update() {
+    if(this.controls) {
+      this.controls.update();
+    }
+  }
+
+  render() {
+    this.renderer.render( this.scene, this.camera );
+  }
+  
+  onResize() {
+
+
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize( window.innerWidth, window.innerHeight );
+  }
+  setLight(){
+    let directionalLight = new THREE.DirectionalLight( 0xfff000, 0.5 );
+    directionalLight.position.set( -10, -40, -50 );
+    let light = new THREE.AmbientLight(0x880000, 0.5);
+    light.position.set(10, 10, 20);
+    let pointLight = new THREE.PointLight(0xffffff,0.8);
+    pointLight.position.set(20,30,30);
+    this.scene.add(pointLight)
+    this.scene.add(light);
+    this.scene.add(directionalLight);
+  }
+  
+}
+
+let app = new App();
+app.init();
+</script>
+</html>
